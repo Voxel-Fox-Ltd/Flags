@@ -3,7 +3,7 @@ from setuptools import setup
 
 requirements = []
 with open('requirements.txt') as f:
-  requirements = f.read().splitlines()
+    requirements = f.read().splitlines()
 
 
 version: str = '0.1.0'
