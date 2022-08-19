@@ -14,7 +14,7 @@ with open("README.rst") as f:
     readme = f.read()
 
 
-extras_require = {}
+extras_require = {}  # type: ignore
 
 
 packages = [
