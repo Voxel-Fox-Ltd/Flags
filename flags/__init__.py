@@ -31,10 +31,8 @@ class flag_value:
 
 class Flags:
 
-    VALID_FLAGS: Dict[str, int] = {
-    }
-
     def __new__(cls, *args, **kwargs):
+        cls.VALID_FLAGS = {}
         for i, o in cls.__dict__.items():
             if isinstance(o, flag_value):
                 cls.VALID_FLAGS[i] = o(None)
