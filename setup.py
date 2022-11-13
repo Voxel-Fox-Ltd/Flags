@@ -27,7 +27,6 @@ setup(
     author="Kae Bartlett",
     url="https://github.com/Voxel-Fox-Ltd/Flags",
     project_urls={
-        # "Documentation": "https://novus.readthedocs.io/en/latest/",
         "Issue tracker": "https://github.com/Voxel-Fox-Ltd/Flags/issues",
     },
     version=version,
