@@ -1,8 +1,8 @@
 from __future__ import annotations
+from collections.abc import Callable
 
 import functools
 from typing import Any, Type, Optional
-
 
 __all__ = (
     'Flags',
@@ -19,10 +19,13 @@ class flag_value:
         '__doc__',
     )
 
-    def __init__(self, func, name: Optional[str] = None):
-        self.name = func.__name__ or name
-        self.value = func(None)
-        self._func = func
+    name: str
+    value: int
+
+    def __init__(self, func: Callable[[Any], int], name: Optional[str] = None):
+        self.name: str = name or func.__name__
+        self.value: int = func(None)
+        self._func: Callable[[Any], int] = func
 
     def __get__(self, instance: Flags, cls: Type[Flags]) -> bool:
         return bool(instance.value & self.value)
@@ -38,6 +41,8 @@ class flag_value:
 
 
 class Flags:
+
+    value: int
 
     def __new__(cls, *args, **kwargs):
         # See if we want to build from cls.CREATE_FLAGS

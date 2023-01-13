@@ -4,9 +4,8 @@ build-backend = "setuptools.build_meta"
 
 
 [tool.setuptools]
-packages = [
-    "flags"
-]
+packages.find.where = ["."]
+package-data.flags = ["*.pyi", "py.typed"]
 
 
 [project]
