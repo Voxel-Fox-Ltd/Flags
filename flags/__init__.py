@@ -54,12 +54,24 @@ class Flags:
                 setattr(cls, name, flag_value(wrapper, name))
 
         # Build flag values
+        docbuilder = cls.__doc__ or ""
+        attribute_lines: list[str] = []
         cls.VALID_FLAGS = {}
         for i, o in cls.__dict__.items():
             if not isinstance(o, flag_value):
                 continue
-            cls.VALID_FLAGS[i] = o(None)
+            cls.VALID_FLAGS[i] = generated = o(None)
             o.__doc__ = o._func.__doc__
+            attribute_lines.append(f"{i} : {generated.__class__.__name__}")
+            attribute_lines.append(f"\t{o.__doc__ or 'Description'}")
+
+        # See if we wanna build some docstrings
+        if "Attributes" not in [line.strip() for line in docbuilder.split("\n")]:
+            cls.__doc__ = (
+                docbuilder.strip()
+                + "\n\nAttributes\n----------\n"
+                + "\n".join(attribute_lines)
+            )
         return super().__new__(cls)
 
     def __init__(self, value: int = 0, **kwargs):
@@ -75,11 +87,19 @@ class Flags:
 
     @classmethod
     def all(cls):
+        """
+        Get an instance of this class with all attributes set to ``True``.
+        """
+
         v = functools.reduce(lambda a, b: a | b, cls.VALID_FLAGS.values())
         return cls(v)
 
     @classmethod
     def none(cls):
+        """
+        Get an instance of this class with all attributes set to ``False``.
+        """
+
         return cls(0)
 
     def __eq__(self, other):
