@@ -81,3 +81,18 @@ class Flags:
     @classmethod
     def none(cls):
         return cls(0)
+
+    def __eq__(self, other):
+        # Make sure they're flags
+        if not isinstance(other, Flags):
+            raise ValueError("Cannot compare incompatible types")
+
+        # Easy compare - same type
+        if isinstance(other, self.__class__):
+            return self.value == other.value
+
+        # Harder compare - a different type but may have compatible attributes
+        return (
+            self.value == other.value
+            and self.VALID_FLAGS == other.VALID_FLAGS
+        )
