@@ -5,12 +5,12 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
 packages.find.where = ["."]
-package-data.flags = ["*.pyi", "py.typed"]
+package-data.vfflags = ["*.pyi", "py.typed"]
 
 
 [project]
 name = "vf-flags"
-version = "0.1.2"
+version = "0.2.0"
 description = "A wrapper for easily making bitwise flags."
 authors = [
     {name = "Kae Bartlett", email = "kae@voxelfox.co.uk"},

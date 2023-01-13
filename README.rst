@@ -25,21 +25,21 @@ Here's a basic example of creating a flags class using decorators.
 
 .. code:: py
 
-    import flags
+    import vfflags
 
-    class WebsitePermissions(flags.Flags):
+    class WebsitePermissions(vfflags.Flags):
 
-        @flags.flag_value
+        @vfflags.flag_value
         def view_posts(self):
             """If the user can view posts."""
             return 0b001
 
-        @flags.flag_value
+        @vfflags.flag_value
         def edit_posts(self):
             """If the user can edit posts."""
             return 0b010
 
-        @flags.flag_value
+        @vfflags.flag_value
         def delete_posts(self):
             return 0b100
 
@@ -47,9 +47,9 @@ Here's an alternative way to create a flags class using a class attribute.
 
 .. code:: py
 
-    import flags
+    import vfflags
 
-    class WebsitePermissions(flags.Flags):
+    class WebsitePermissions(vfflags.Flags):
 
         # You can optionally add a docstring by adding your value to a tuple
         CREATE_FLAGS = {
