@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import functools
-from typing import Dict, Type
+from typing import Any, Type, Optional
 
 
 __all__ = (
@@ -12,9 +12,17 @@ __all__ = (
 
 class flag_value:
 
-    def __init__(self, func):
-        self.name = func.__name__
-        self.value = func(None)       
+    __slots__ = (
+        'name',
+        'value',
+        '_func',
+        '__doc__',
+    )
+
+    def __init__(self, func, name: Optional[str] = None):
+        self.name = func.__name__ or name
+        self.value = func(None)
+        self._func = func
 
     def __get__(self, instance: Flags, cls: Type[Flags]) -> bool:
         return bool(instance.value & self.value)
@@ -25,17 +33,33 @@ class flag_value:
         else:
             instance.value &= ~self.value
 
-    def __call__(self, instance: Flags):
+    def __call__(self, instance: Any):
         return self.value
 
 
 class Flags:
 
     def __new__(cls, *args, **kwargs):
+        # See if we want to build from cls.CREATE_FLAGS
+        if (current_flags := getattr(cls, "CREATE_FLAGS", None)):
+            if not isinstance(current_flags, dict):
+                raise TypeError("Existing CREATE_FLAGS attribute should be dict")
+            for name, value in current_flags.items():
+                doc = None
+                if isinstance(value, tuple):
+                    value, doc = value
+                def wrapper(_):
+                    return value
+                wrapper.__doc__ = doc
+                setattr(cls, name, flag_value(wrapper, name))
+
+        # Build flag values
         cls.VALID_FLAGS = {}
         for i, o in cls.__dict__.items():
-            if isinstance(o, flag_value):
-                cls.VALID_FLAGS[i] = o(None)
+            if not isinstance(o, flag_value):
+                continue
+            cls.VALID_FLAGS[i] = o(None)
+            o.__doc__ = o._func.__doc__
         return super().__new__(cls)
 
     def __init__(self, value: int = 0, **kwargs):

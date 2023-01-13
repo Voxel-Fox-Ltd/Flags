@@ -21,6 +21,8 @@ To install off of Github you can do the following
 Quick Example
 -----------------
 
+Here's a basic example of creating a flags class using decorators.
+
 .. code:: py
 
     import flags
@@ -28,13 +30,37 @@ Quick Example
     class WebsitePermissions(flags.Flags):
 
         @flags.flag_value
-        def view_posts(self): return 0b001
+        def view_posts(self):
+            """If the user can view posts."""
+            return 0b001
 
         @flags.flag_value
-        def edit_posts(self): return 0b010
+        def edit_posts(self):
+            """If the user can edit posts."""
+            return 0b010
 
         @flags.flag_value
-        def delete_posts(self): return 0b100
+        def delete_posts(self):
+            return 0b100
+
+Here's an alternative way to create a flags class using a class attribute.
+
+.. code:: py
+
+    import flags
+
+    class WebsitePermissions(flags.Flags):
+
+        # You can optionally add a docstring by adding your value to a tuple
+        CREATE_FLAGS = {
+            "view_posts": (0b001, "If the user can view posts."),
+            "edit_posts": (0b010, "If the user can edit posts."),
+            "delete_posts": 0b100,
+        }
+
+Here's the usage of either of the above.
+
+.. code:: py
 
     perms1 = WebsitePermissions(0b011)  # Init with a value
     perms1.view_posts  # True
