@@ -11,7 +11,7 @@ packages = [
 
 [project]
 name = "vf-flags"
-version = "0.1.1"
+version = "0.1.2"
 description = "A wrapper for easily making bitwise flags."
 authors = [
     {name = "Kae Bartlett", email = "kae@voxelfox.co.uk"},

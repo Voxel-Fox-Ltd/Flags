@@ -62,8 +62,9 @@ class Flags:
                 continue
             cls.VALID_FLAGS[i] = generated = o(None)
             o.__doc__ = o._func.__doc__
-            attribute_lines.append(f"{i} : {generated.__class__.__name__}")
-            attribute_lines.append(f"\t{o.__doc__ or 'Description'}")
+            attribute_lines.append(f"{i} : bool")
+            if o.__doc__:
+                attribute_lines.append(f"\t{o.__doc__}")
 
         # See if we wanna build some docstrings
         if "Attributes" not in [line.strip() for line in docbuilder.split("\n")]:
