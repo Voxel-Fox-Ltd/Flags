@@ -10,7 +10,7 @@ package-data.vfflags = ["*.pyi", "py.typed"]
 
 [project]
 name = "vf-flags"
-version = "0.2.1"
+version = "0.2.2"
 description = "A wrapper for easily making bitwise flags."
 authors = [
     {name = "Kae Bartlett", email = "kae@voxelfox.co.uk"},

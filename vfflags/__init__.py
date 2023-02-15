@@ -43,28 +43,28 @@ class flag_value:
         return self.value
 
 
-class Flags:
+class FlagMeta(type):
 
-    value: int
-    VALID_FLAGS: dict[str, int] = {}
+    def __init__(cls, name, bases, dct):
+        super().__init__(name, bases, dct)
 
-    def __new__(cls, *args, **kwargs):
         # See if we want to build from cls.CREATE_FLAGS
         if (current_flags := getattr(cls, "CREATE_FLAGS", None)):
             if not isinstance(current_flags, dict):
                 raise TypeError("Existing CREATE_FLAGS attribute should be dict")
-            for name, value in current_flags.items():
+            for nname, value in current_flags.items():
                 doc = None
                 if isinstance(value, tuple):
                     value, doc = value
                 def wrapper(_):
                     return value
                 wrapper.__doc__ = doc
-                setattr(cls, name, flag_value(wrapper, name))
+                setattr(cls, nname, flag_value(wrapper, nname))
 
         # Build flag values
         docbuilder = cls.__doc__ or ""
         attribute_lines: list[str] = []
+        cls.VALID_FLAGS = {}
         for i, o in cls.__dict__.items():
             if not isinstance(o, flag_value):
                 continue
@@ -81,7 +81,11 @@ class Flags:
                 + "\n\nAttributes\n----------\n"
                 + "\n".join(attribute_lines)
             )
-        return super().__new__(cls)
+
+
+class Flags(metaclass=FlagMeta):
+
+    value: int
 
     def __init__(self, value: int = 0, **kwargs):
         self.value = value
@@ -90,8 +94,8 @@ class Flags:
 
     def __repr__(self) -> str:
         d = []
-        for i in self.VALID_FLAGS.keys():
-            d.append(f"{i}={getattr(self, i)}")
+        for i, o in self.VALID_FLAGS.items():
+            d.append(f"{i}={bool(self.value & o)}")
         return f"{self.__class__.__name__}({', '.join(d)})"
 
     @classmethod
