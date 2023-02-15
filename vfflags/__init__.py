@@ -27,6 +27,9 @@ class flag_value:
         self.value: int = func(None)
         self._func: Callable[[Any], int] = func
 
+    def __repr__(self) -> str:
+        return f"<flag_value name={self.name} value={self.value}>"
+
     def __get__(self, instance: Flags, cls: Type[Flags]) -> bool:
         return bool(instance.value & self.value)
 
@@ -43,6 +46,7 @@ class flag_value:
 class Flags:
 
     value: int
+    VALID_FLAGS: dict[str, int] = {}
 
     def __new__(cls, *args, **kwargs):
         # See if we want to build from cls.CREATE_FLAGS
@@ -61,11 +65,10 @@ class Flags:
         # Build flag values
         docbuilder = cls.__doc__ or ""
         attribute_lines: list[str] = []
-        cls.VALID_FLAGS = {}
         for i, o in cls.__dict__.items():
             if not isinstance(o, flag_value):
                 continue
-            cls.VALID_FLAGS[i] = generated = o(None)
+            cls.VALID_FLAGS[i] = o(None)
             o.__doc__ = o._func.__doc__
             attribute_lines.append(f"{i} : bool")
             if o.__doc__:
