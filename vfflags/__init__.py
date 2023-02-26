@@ -1,8 +1,9 @@
 from __future__ import annotations
-from collections.abc import Callable
+from collections.abc import Callable, Generator, Iterable
 
 import functools
-from typing import Any, Type, Optional
+from typing import Any, ClassVar, Type, Optional
+from typing_extensions import Self
 
 __all__ = (
     'Flags',
@@ -64,15 +65,18 @@ class FlagMeta(type):
         # Build flag values
         docbuilder = cls.__doc__ or ""
         attribute_lines: list[str] = []
+        aliases = getattr(cls, "ALIASES", [])
         cls.VALID_FLAGS = {}
         for i, o in cls.__dict__.items():
             if not isinstance(o, flag_value):
                 continue
             cls.VALID_FLAGS[i] = o(None)
+            cls.__annotations__[i] = bool
             o.__doc__ = o._func.__doc__
-            attribute_lines.append(f"{i} : bool")
-            if o.__doc__:
-                attribute_lines.append(f"\t{o.__doc__}")
+            if i not in aliases:
+                attribute_lines.append(f"{i} : bool")
+                if o.__doc__:
+                    attribute_lines.append(f"\t{o.__doc__}")
 
         # See if we wanna build some docstrings
         if "Attributes" not in [line.strip() for line in docbuilder.split("\n")]:
@@ -86,20 +90,39 @@ class FlagMeta(type):
 class Flags(metaclass=FlagMeta):
 
     value: int
+    CREATE_FLAGS: ClassVar[dict[str, int]]
+    VALID_FLAGS: ClassVar[dict[str, int]]
+    ALIASES: ClassVar[Iterable[str]] = ()
 
-    def __init__(self, value: int = 0, **kwargs):
+    def __init__(self, value: int = 0, **kwargs: bool):
         self.value = value
         for i, o in kwargs.items():
             setattr(self, i, o)
 
     def __repr__(self) -> str:
-        d = []
-        for i, o in self.VALID_FLAGS.items():
-            d.append(f"{i}={bool(self.value & o)}")
-        return f"{self.__class__.__name__}({', '.join(d)})"
+        return f"{self.__class__.__name__}(0b{self.value:_b})"
+
+    def walk(self) -> Generator[tuple[str, bool], None, None]:
+        """
+        Walk through the names and values of the flags.
+        """
+
+        for name in self.VALID_FLAGS:
+            val: bool = getattr(self, name)
+            if name in self.ALIASES:
+                continue
+            yield name, val
+
+    def update(self, **kwargs: bool) -> Self:
+        """
+        Set flag values in-place for the given instance.
+        """
+
+        for i, o in kwargs.items():
+            setattr(self, i, o)
 
     @classmethod
-    def all(cls):
+    def all(cls) -> Self:
         """
         Get an instance of this class with all attributes set to ``True``.
         """
@@ -108,14 +131,14 @@ class Flags(metaclass=FlagMeta):
         return cls(v)
 
     @classmethod
-    def none(cls):
+    def none(cls) -> Self:
         """
         Get an instance of this class with all attributes set to ``False``.
         """
 
         return cls(0)
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         # Make sure they're flags
         if not isinstance(other, Flags):
             raise ValueError("Cannot compare incompatible types")

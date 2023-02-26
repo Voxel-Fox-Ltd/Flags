@@ -10,7 +10,7 @@ package-data.vfflags = ["*.pyi", "py.typed"]
 
 [project]
 name = "vf-flags"
-version = "0.2.2"
+version = "0.2.3"
 description = "A wrapper for easily making bitwise flags."
 authors = [
     {name = "Kae Bartlett", email = "kae@voxelfox.co.uk"},
@@ -32,4 +32,7 @@ classifiers = [
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Topic :: Utilities',
         'Typing :: Typed',
+]
+dependencies = [
+    "typing_extensions",
 ]
