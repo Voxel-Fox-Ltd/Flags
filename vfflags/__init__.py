@@ -102,6 +102,9 @@ class Flags(metaclass=FlagMeta):
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(0b{self.value:_b})"
 
+    def __hash__(self) -> int:
+        return hash(repr(self))
+
     def walk(self) -> Generator[tuple[str, bool], None, None]:
         """
         Walk through the names and values of the flags.
