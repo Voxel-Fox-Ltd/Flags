@@ -121,8 +121,12 @@ class Flags(metaclass=FlagMeta):
         Set flag values in-place for the given instance.
         """
 
+        for i in kwargs.keys():
+            if i not in self.VALID_FLAGS:
+                raise ValueError("%s is not a valid flag" % i)
         for i, o in kwargs.items():
             setattr(self, i, o)
+        return self
 
     @classmethod
     def all(cls) -> Self:
