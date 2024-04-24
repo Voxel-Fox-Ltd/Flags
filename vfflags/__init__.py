@@ -94,9 +94,15 @@ class Flags(metaclass=FlagMeta):
     VALID_FLAGS: ClassVar[dict[str, int]]
     ALIASES: ClassVar[Iterable[str]] = ()
 
-    def __init__(self, value: int = 0, **kwargs: bool):
-        self.value = value
+    def __init__(self, value: int | Iterable[str] = 0, **kwargs: bool):
+        if isinstance(value, int):
+            self.value = value
+        else:
+            self.value = 0
+            kwargs.update({i: True for i in value})
         for i, o in kwargs.items():
+            if i not in self.VALID_FLAGS:
+                raise ValueError("%s is not a valid flag" % i)
             setattr(self, i, o)
 
     def __repr__(self) -> str:
@@ -115,6 +121,9 @@ class Flags(metaclass=FlagMeta):
             if name in self.ALIASES:
                 continue
             yield name, val
+
+    def __iter__(self) -> Iterable[tuple[str, bool]]:
+        return self.walk()
 
     def update(self, **kwargs: bool) -> Self:
         """
